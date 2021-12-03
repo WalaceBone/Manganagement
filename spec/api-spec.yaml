@@ -39,6 +39,7 @@ paths:
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: aws_proxy
+
     post:
       summary: "Create author"
       requestBody:
@@ -65,6 +66,7 @@ paths:
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: aws_proxy
+
   /authors/{id}:
     delete:
       summary: "Delete author"
@@ -206,6 +208,7 @@ paths:
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: aws_proxy
+        
     post:
       summary: "Create character"
       requestBody:
@@ -232,97 +235,13 @@ paths:
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: aws_proxy
+
   /characters/{id}:
     delete:
       summary: "Delete character"
       parameters:
         - in: path
           name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        204:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Empty"
-      security:
-        - sigv4: [ ]
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: 204
-        uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteSongFunction.Arn}/invocations"
-        passthroughBehavior: when_no_match
-        httpMethod: POST
-        type: aws_proxy
-  /songs:
-    get:
-      summary: "Find song by author and title"
-      parameters:
-        - in: query
-          name: author
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: title
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Song"
-      security:
-        - sigv4: [ ]
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: 200
-        uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FindSongsFunction.Arn}/invocations"
-        passthroughBehavior: when_no_match
-        httpMethod: POST
-        type: aws_proxy
-    post:
-      summary: "Create a song"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Song"
-      responses:
-        201:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Song"
-      security:
-        - sigv4: [ ]
-      x-amazon-apigateway-request-validator: validate_request
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: 201
-        uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateSongFunction.Arn}/invocations"
-        passthroughBehavior: when_no_match
-        httpMethod: POST
-        type: aws_proxy
-  /songs/{song_id}:
-    delete:
-      summary: "Delete a song"
-      parameters:
-        - in: path
-          name: song_id
           required: true
           schema:
             type: string
@@ -376,27 +295,10 @@ components:
           type: string
         manga:
           type: string
-        role:
+        picture:
           type: string
         description: 
           type: sting
-    SongList:
-      type: array
-      items:
-        $ref: '#/components/schemas/Song'
-    Song:
-      type: object
-      properties:
-        id:
-          type: string
-        author:
-          type: string
-        title:
-          type: string
-        genre:
-          type: string
-        date:
-          type: string
     Empty:
       type: object
 
