@@ -15,8 +15,56 @@ paths:
   /authors:
     get:
       summary: "Find author by name"
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+      security:
+        - sigv4: [ ]
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FindSongsFunction.Arn}/invocations"
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
     post:
       summary: "Create author"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Author"
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+      security:
+        - sigv4: [ ]
+      x-amazon-apigateway-request-validator: validate_request
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 201
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateSongFunction.Arn}/invocations"
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
   /authors/{id}:
     delete:
       summary: "Delete author"
@@ -74,6 +122,31 @@ paths:
 
     post:
       summary: "Create Manga"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Manga"
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Manga"
+      security:
+        - sigv4: [ ]
+      x-amazon-apigateway-request-validator: validate_request
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 201
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateSongFunction.Arn}/invocations"
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+      
   /manga/{id}:
     delete:
       summary: "Delete manga"
@@ -135,6 +208,30 @@ paths:
         type: aws_proxy
     post:
       summary: "Create character"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Character"
+      responses:
+        201:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Character"
+      security:
+        - sigv4: [ ]
+      x-amazon-apigateway-request-validator: validate_request
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 201
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateSongFunction.Arn}/invocations"
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
   /characters/{id}:
     delete:
       summary: "Delete character"
