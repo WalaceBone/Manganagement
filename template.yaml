@@ -1,0 +1,283 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Serverless Specification template describing your function.
+
+Parameters:
+  StageName:
+    Type: String
+  BucketPrefix:
+    Type: String
+  CicdBucket:
+    Type: String
+Resources:
+
+
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-api.html
+  DefaultApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: live
+      DefinitionBody:
+        'Fn::Transform':
+          Name: 'AWS::Include'
+          Parameters:
+            # Chemin vers la spec OpenAPI
+            Location: !Sub "s3://${CicdBucket}/spec/api-spec.yaml"
+      Auth:
+        Authorizers:
+          authorizer:
+            FunctionArn: !GetAtt AuthorizerFunction.Arn
+
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+  FindAuthorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      # Chemin du handler de la lambda
+      CodeUri: src/
+      Handler: hello-world
+      # Runtime utilisé pour l'exécution de la lambda
+      Runtime: go1.x
+      # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+      # Droits IAM affectés à la l'exécution de la lambda
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /author
+            Method: GET
+      # Variables d'environnement
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+  FindCharacterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      # Chemin du handler de la lambda
+      CodeUri: src/
+      Handler: hello-world
+      # Runtime utilisé pour l'exécution de la lambda
+      Runtime: go1.x
+      # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+      # Droits IAM affectés à la l'exécution de la lambda
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /character
+            Method: GET
+      # Variables d'environnement
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+  FindMangaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      # Chemin du handler de la lambda
+      CodeUri: src/
+      Handler: hello-world
+      # Runtime utilisé pour l'exécution de la lambda
+      Runtime: go1.x
+      # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+      # Droits IAM affectés à la l'exécution de la lambda
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /manga
+            Method: GET
+      # Variables d'environnement
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+
+  CreateAuthorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: hello-world
+      Runtime: go1.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /author
+            Method: POST
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+
+  CreateCharacterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: hello-world
+      Runtime: go1.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /character
+            Method: POST
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+
+  CreateMangaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: hello-world
+      Runtime: go1.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /manga
+            Method: POST
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+
+  DeleteAuthorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: hello-world
+      Runtime: go1.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /author/{id}
+            Method: DELETE
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+
+  DeleteCharacterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: hello-world
+      Runtime: go1.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /character/{id}
+            Method: DELETE
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+
+  DeleteMangaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: hello-world
+      Runtime: go1.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Table
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /manga/{id}
+            Method: DELETE
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+
+  AuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "manganagement-${StageName}-AuthorizerFunction"
+      CodeUri: src/
+      Handler: hello-world
+      Runtime: go1.x
+      Policies:
+        - CloudWatchPutMetricPolicy: { }
+
+  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
+  # https://docs.aws.amazon.com/fr_fr/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
+  Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "manganagement-${StageName}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: uuid
+          AttributeType: S
+        - AttributeName: author
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: S
+        - AttributeName: title
+          AttributeType: S
+      KeySchema:
+        - AttributeName: author
+          KeyType: HASH
+        - AttributeName: title
+          KeyType: RANGE
+      LocalSecondaryIndexes:
+        - IndexName: author-date
+          KeySchema:
+            - AttributeName: author
+              KeyType: HASH
+            - AttributeName: date
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      GlobalSecondaryIndexes:
+        - IndexName: uuid
+          KeySchema:
+            - AttributeName: uuid
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
