@@ -1,7 +1,7 @@
 openapi: "3.0.1"
 info:
   version: "1"
-  title: "Music Library documentation"
+  title: "Manganagement documentation"
 
 
 servers:
@@ -296,7 +296,7 @@ components:
         manga:
           type: string
         description: 
-          type: sting
+          type: string
     Empty:
       type: object
 
