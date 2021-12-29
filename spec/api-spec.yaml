@@ -12,88 +12,6 @@ servers:
         description: set api id
 
 paths:
-  /author:
-    get:
-      summary: "Find author by name"
-      parameters:
-        - in: query
-          name: name
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Author"
-      security:
-        - sigv4: [ ]
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: 200
-        uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FindAuthorFunction.Arn}/invocations"
-        passthroughBehavior: when_no_match
-        httpMethod: POST
-        type: aws_proxy
-
-    post:
-      summary: "Create author"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Author"
-      responses:
-        201:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Author"
-      security:
-        - sigv4: [ ]
-      x-amazon-apigateway-request-validator: validate_request
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: 201
-        uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateAuthorFunction.Arn}/invocations"
-        passthroughBehavior: when_no_match
-        httpMethod: POST
-        type: aws_proxy
-
-  /author/{id}:
-    delete:
-      summary: "Delete author"
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        204:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Empty"
-      security:
-        - sigv4: [ ]
-      x-amazon-apigateway-integration:
-        responses:
-          default:
-            statusCode: 204
-        uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteAuthorFunction.Arn}/invocations"
-        passthroughBehavior: when_no_match
-        httpMethod: POST
-        type: aws_proxy
   /manga:
     get:
       summary: "Find Manga by title"
@@ -176,17 +94,13 @@ paths:
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: aws_proxy
+
   /character:
     get:
       summary: "Find character by name"
       parameters:
         - in: query
-          name: author
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: title
+          name: name
           required: true
           schema:
             type: string
@@ -236,6 +150,34 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
+  /character/desc:
+    get:
+      summary: "Find character by text in description"
+      parameters:
+        - in: query
+          name: desc
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Character"
+      security:
+        - sigv4: [ ]
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FindCharacterFunction.Arn}/invocations"
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
   /character/{id}:
     delete:
       summary: "Delete character"
@@ -259,32 +201,23 @@ paths:
           default:
             statusCode: 204
         uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteCharacterFunction.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FindCharacterByDescFunction.Arn}/invocations"
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: aws_proxy
 
 components:
   schemas:
-    Author:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        birth:
-          type: string
-        death:
-          type: string
     Manga:
       type: object
       properties:
         id:
           type: string
-        name:
+        author:
           type: string
-        release_date:
+        title:
+          type: string
+        description:
           type: string
     Character:
       type: object
@@ -297,6 +230,12 @@ components:
           type: string
         description: 
           type: string
+        image:
+          type: string
+    CharacterList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Character'
     Empty:
       type: object
 
