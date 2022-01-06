@@ -41,8 +41,7 @@ Resources:
       # Droits IAM affectés à la l'exécution de la lambda
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: 
-              !Ref CharTable
+            TableName: !Ref CharTable
         - CloudWatchPutMetricPolicy: { }
       Events:
         ApiEvent:
@@ -118,8 +117,7 @@ Resources:
       Runtime: go1.x
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: 
-              !Ref CharTable
+            TableName: !Ref CharTable
         - CloudWatchPutMetricPolicy: { }
       Events:
         ApiEvent:
@@ -215,32 +213,30 @@ Resources:
       TableName: !Sub "manganagement-${StageName}"
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        - AttributeName: uuid
-          AttributeType: S
-        - AttributeName: name
-          AttributeType: S
-        - AttributeName: description
-          AttributeType: S
-        - AttributeName: title
-          AttributeType: S
+      - AttributeName: uuid
+        AttributeType: S
+      - AttributeName: name
+        AttributeType: S
+      - AttributeName: description
+        AttributeType: S
       KeySchema:
-        - AttributeName: name
-          KeyType: HASH
-        - AttributeName: title
-          KeyType: RANGE
+      - AttributeName: name
+        KeyType: HASH
+      - AttributeName: description
+        KeyType: RANGE
       LocalSecondaryIndexes:
-        - IndexName: name-description
-          KeySchema:
-            - AttributeName: name
-              KeyType: HASH
-            - AttributeName: description
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
+      - IndexName: name-description
+        KeySchema:
+          - AttributeName: name
+            KeyType: HASH
+          - AttributeName: description
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
       GlobalSecondaryIndexes:
-        - IndexName: uuid
-          KeySchema:
-            - AttributeName: uuid
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
+      - IndexName: uuid
+        KeySchema:
+          - AttributeName: uuid
+            KeyType: HASH
+        Projection:
+          ProjectionType: ALL

@@ -10,7 +10,7 @@ import (
 type Character struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
-	Manga       string `json:"manga"`
+	Title       string `json:"title"`
 	Description string `json:"description"`
 	Image       string `json:"image"`
 }
@@ -19,7 +19,7 @@ var db = dynamodb.New(session.Must(session.NewSession()), aws.NewConfig().WithRe
 
 func getItem(name string) (*Character, error) {
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String("character"),
+		TableName: aws.String("manganagement-live"),
 		Key: map[string]*dynamodb.AttributeValue{
 			"name": {
 				S: aws.String(name),
@@ -43,13 +43,22 @@ func getItem(name string) (*Character, error) {
 
 func putItem(charac *Character) error {
 	input := &dynamodb.PutItemInput{
-		TableName: aws.String("character"),
+		TableName: aws.String("manganagement-live"),
 		Item: map[string]*dynamodb.AttributeValue{
 			"id": {
 				S: aws.String(charac.ID),
 			},
 			"name": {
 				S: aws.String(charac.Name),
+			},
+			"title": {
+				S: aws.String(charac.Title),
+			},
+			"description": {
+				S: aws.String(charac.Description),
+			},
+			"image": {
+				S: aws.String(charac.Image),
 			},
 		},
 	}

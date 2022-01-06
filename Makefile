@@ -3,7 +3,7 @@
 s3bucket		=	manganagement
 stage			=	live
 prefix_bucket	=	dev
-stack_name		=	Manganagement
+stack_name		=	manganagement
 region			=	eu-west-3
 build:
 	sam build

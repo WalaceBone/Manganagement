@@ -226,7 +226,7 @@ components:
           type: string
         name:
           type: string
-        manga:
+        title:
           type: string
         description: 
           type: string
