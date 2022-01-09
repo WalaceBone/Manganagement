@@ -75,7 +75,8 @@ func clientError(status int) (events.APIGatewayProxyResponse, error) {
 func showCharacter(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	name := req.QueryStringParameters["name"]
-	charact, err := getItem(name)
+	desc := req.QueryStringParameters["desc"]
+	charact, err := getItem(name, desc)
 	if err != nil {
 		return serverError(err)
 	}
