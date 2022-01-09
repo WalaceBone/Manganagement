@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -32,31 +31,31 @@ func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 	}
 }
 
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+// func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
-	resp, err := http.Get(DefaultHTTPGetAddress)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
+// 	resp, err := http.Get(DefaultHTTPGetAddress)
+// 	if err != nil {
+// 		return events.APIGatewayProxyResponse{}, err
+// 	}
 
-	if resp.StatusCode != 200 {
-		return events.APIGatewayProxyResponse{}, ErrNon200Response
-	}
+// 	if resp.StatusCode != 200 {
+// 		return events.APIGatewayProxyResponse{}, ErrNon200Response
+// 	}
 
-	ip, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
+// 	ip, err := ioutil.ReadAll(resp.Body)
+// 	if err != nil {
+// 		return events.APIGatewayProxyResponse{}, err
+// 	}
 
-	if len(ip) == 0 {
-		return events.APIGatewayProxyResponse{}, ErrNoIP
-	}
+// 	if len(ip) == 0 {
+// 		return events.APIGatewayProxyResponse{}, ErrNoIP
+// 	}
 
-	return events.APIGatewayProxyResponse{
-		Body:       "hello",
-		StatusCode: 200,
-	}, nil
-}
+// 	return events.APIGatewayProxyResponse{
+// 		Body:       "hello",
+// 		StatusCode: 200,
+// 	}, nil
+// }
 
 func serverError(err error) (events.APIGatewayProxyResponse, error) {
 	return events.APIGatewayProxyResponse{
