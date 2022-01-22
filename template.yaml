@@ -12,6 +12,58 @@ Parameters:
 Resources:
 
 
+  # Bucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     AccessControl: Private
+  #     BucketName: !Ref CicdBucket
+  #     Tags:
+  #       - Key: description
+  #         Value: "Private files"
+
+  CloudFrontOriginIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: 'origin identity'
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CicdBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
+            Action: 's3:GetObject'
+            Resource: !Sub "arn:aws:s3:::${CicdBucket}/*"
+
+  publicDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: manganagement.s3.eu-west-3.amazonaws.com
+            Id: S3-manganagement
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
+        Enabled: 'true'
+        Comment: Some comment
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          TargetOriginId: S3-manganagement
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: 'true'
+
   # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-api.html
   DefaultApi:
     Type: AWS::Serverless::Api
