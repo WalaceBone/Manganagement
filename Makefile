@@ -1,12 +1,13 @@
 .PHONY: build
 
 s3bucket		=	manganagement
+s3bucketFront	=	tp-frontend-live
 stage			=	live
 prefix_bucket	=	dev
 stack_name		=	manganagement
 region			=	eu-west-3
 
-all: build deploy
+all: clean build deploy
 
 build:
 	sam build
@@ -19,6 +20,7 @@ deploy:
 	--parameter-overrides StageName=$(stage) BucketPrefix=$(prefix_bucket) CicdBucket=$(s3bucket) \
 	--s3-bucket $(s3bucket) --stack-name $(stack_name)-$(stage) \
 	--region $(region)
+	aws s3 cp front/index.html s3://$(s3bucketFront)
 
 invoke:
 	sam local invoke
@@ -29,7 +31,9 @@ deployg:
 test:
 	sam local start-api
 
-clean: clean-stack
+fclean: clean clean-stack
+
+clean:
 	rm -rf .aws-sam
 	rm -rf package.yaml
 

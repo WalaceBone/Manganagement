@@ -127,7 +127,8 @@ paths:
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: aws_proxy
-        
+
+  /character/create:      
     post:
       summary: "Create character"
       requestBody:
@@ -183,12 +184,17 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
-  /character/{id}:
+  /character/delete:
     delete:
       summary: "Delete character"
       parameters:
-        - in: path
-          name: id
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: desc
           required: true
           schema:
             type: string
@@ -206,7 +212,7 @@ paths:
           default:
             statusCode: 204
         uri:
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FindCharacterByDescFunction.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteCharacterFunction.Arn}/invocations"
         passthroughBehavior: when_no_match
         httpMethod: POST
         type: aws_proxy
@@ -216,7 +222,7 @@ components:
     Manga:
       type: object
       properties:
-        id:
+        uuid:
           type: string
         author:
           type: string
@@ -227,7 +233,7 @@ components:
     Character:
       type: object
       properties:
-        id:
+        uuid:
           type: string
         name:
           type: string

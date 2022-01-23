@@ -12,55 +12,59 @@ Parameters:
 Resources:
 
 
-  # Bucket:
-  #   Type: AWS::S3::Bucket
+  # BucketFrontend:
+  #   Type: 'AWS::S3::Bucket'
+  #   DeletionPolicy: Retain
   #   Properties:
-  #     AccessControl: Private
-  #     BucketName: !Ref CicdBucket
-  #     Tags:
-  #       - Key: description
-  #         Value: "Private files"
+  #     BucketName: !Sub "tp-frontend-${StageName}"
 
-  CloudFrontOriginIdentity:
+  # BucketPolicyReadPublic:
+  #   Type: 'AWS::S3::BucketPolicy'
+  #   Properties:
+  #     Bucket: !Ref BucketFrontend
+  #     PolicyDocument:
+  #       Id: PublicReadPolicy
+  #       Statement:
+  #         - Sid: PublicReadForGetBucketObjects
+  #           Effect: Allow
+  #           Principal: '*'
+  #           Action: 's3:GetObject'
+  #           Resource: !Join 
+  #             - ''
+  #             - - 'arn:aws:s3:::'
+  #               - !Ref BucketFrontend
+  #               - /*
+
+  OriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: 'origin identity'
+    Properties: 
+      CloudFrontOriginAccessIdentityConfig: 
+        Comment: OAI
 
-  BucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref CicdBucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
-            Action: 's3:GetObject'
-            Resource: !Sub "arn:aws:s3:::${CicdBucket}/*"
-
-  publicDistribution:
+  FrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Enabled: true
         Origins:
-          - DomainName: manganagement.s3.eu-west-3.amazonaws.com
-            Id: S3-manganagement
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
-        Enabled: 'true'
-        Comment: Some comment
+        - DomainName: tp-frontend-live.s3.eu-west-3.amazonaws.com
+          Id: S3Source
+          S3OriginConfig:
+            OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${OriginAccessIdentity}"
+        DefaultRootObject: index.html
         DefaultCacheBehavior:
-          AllowedMethods:
-            - GET
-            - HEAD
-          TargetOriginId: S3-manganagement
           ForwardedValues:
-            QueryString: 'false'
-            Cookies:
-              Forward: none
-          ViewerProtocolPolicy: redirect-to-https
+            QueryString: true
+          AllowedMethods:
+          - DELETE
+          - GET
+          - HEAD
+          - OPTIONS
+          - PATCH
+          - POST
+          - PUT
+          TargetOriginId: S3Source
+          ViewerProtocolPolicy: allow-all
         ViewerCertificate:
           CloudFrontDefaultCertificate: 'true'
 
@@ -85,7 +89,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       # Chemin du handler de la lambda
-      CodeUri: src/character
+      CodeUri: src/character/get
       Handler: character
       # Runtime utilisé pour l'exécution de la lambda
       Runtime: go1.x
@@ -164,7 +168,7 @@ Resources:
   CreateCharacterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/character
+      CodeUri: src/character/post
       Handler: character
       Runtime: go1.x
       Policies:
@@ -176,7 +180,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref DefaultApi
-            Path: /character
+            Path: /character/create
             Method: POST
       Environment:
         Variables:
@@ -207,7 +211,7 @@ Resources:
   DeleteCharacterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/character
+      CodeUri: src/character/delete
       Handler: character
       Runtime: go1.x
       Policies:
@@ -219,7 +223,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref DefaultApi
-            Path: /character/{id}
+            Path: /character/delete
             Method: DELETE
       Environment:
         Variables:
@@ -233,8 +237,7 @@ Resources:
       Runtime: go1.x
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: 
-              !Ref CharTable
+            TableName: !Ref CharTable
         - CloudWatchPutMetricPolicy: { }
       Events:
         ApiEvent:
