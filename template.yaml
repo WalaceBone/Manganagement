@@ -39,7 +39,7 @@ Resources:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties: 
       CloudFrontOriginAccessIdentityConfig: 
-        Comment: OAI
+        Comment: FrontOAI
 
   FrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -48,7 +48,7 @@ Resources:
         Enabled: true
         Origins:
         - DomainName: tp-frontend-live.s3.eu-west-3.amazonaws.com
-          Id: S3Source
+          Id: tp-frontend-live
           S3OriginConfig:
             OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${FrontOriginAccessIdentity}"
         DefaultRootObject: index.html
@@ -63,7 +63,7 @@ Resources:
           - PATCH
           - POST
           - PUT
-          TargetOriginId: S3Source
+          TargetOriginId: tp-frontend-live
           ViewerProtocolPolicy: allow-all
         ViewerCertificate:
           CloudFrontDefaultCertificate: 'true'
@@ -164,32 +164,6 @@ Resources:
         Variables:
           TABLE_NAME: !Ref CharTable
   # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
-  FindMangaFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      # Chemin du handler de la lambda
-      CodeUri: src/
-      Handler: hello-world
-      # Runtime utilisé pour l'exécution de la lambda
-      Runtime: go1.x
-      # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
-      # Droits IAM affectés à la l'exécution de la lambda
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: 
-              !Ref CharTable
-        - CloudWatchPutMetricPolicy: { }
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref DefaultApi
-            Path: /manga
-            Method: GET
-      # Variables d'environnement
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref CharTable
 
   CreateCharacterFunction:
     Type: AWS::Serverless::Function
@@ -212,28 +186,6 @@ Resources:
         Variables:
           TABLE_NAME: !Ref CharTable
 
-  CreateMangaFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/manga
-      Handler: manga
-      Runtime: go1.x
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: 
-              !Ref CharTable
-        - CloudWatchPutMetricPolicy: { }
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref DefaultApi
-            Path: /manga
-            Method: POST
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref CharTable
-
   DeleteCharacterFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -250,27 +202,6 @@ Resources:
           Properties:
             RestApiId: !Ref DefaultApi
             Path: /character/delete
-            Method: DELETE
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref CharTable
-
-  DeleteMangaFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/manga
-      Handler: manga
-      Runtime: go1.x
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref CharTable
-        - CloudWatchPutMetricPolicy: { }
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref DefaultApi
-            Path: /manga/{id}
             Method: DELETE
       Environment:
         Variables:
