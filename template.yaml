@@ -12,28 +12,37 @@ Parameters:
 Resources:
 
 
-  # BucketFrontend:
-  #   Type: 'AWS::S3::Bucket'
-  #   DeletionPolicy: Retain
-  #   Properties:
-  #     BucketName: !Sub "tp-frontend-${StageName}"
+  ImageBucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "characters-image-${StageName}"
 
-  # BucketPolicyReadPublic:
-  #   Type: 'AWS::S3::BucketPolicy'
-  #   Properties:
-  #     Bucket: !Ref BucketFrontend
-  #     PolicyDocument:
-  #       Id: PublicReadPolicy
-  #       Statement:
-  #         - Sid: PublicReadForGetBucketObjects
-  #           Effect: Allow
-  #           Principal: '*'
-  #           Action: 's3:GetObject'
-  #           Resource: !Join 
-  #             - ''
-  #             - - 'arn:aws:s3:::'
-  #               - !Ref BucketFrontend
-  #               - /*
+  BucketFrontend:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      BucketName: !Sub "tp-frontend-${StageName}"
+
+  BucketPolicyReadPublic:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref BucketFrontend
+      PolicyDocument:
+        Id: PublicReadPolicy
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref BucketFrontend
+                - /*
 
   FrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
