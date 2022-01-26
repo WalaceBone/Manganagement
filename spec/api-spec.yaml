@@ -95,6 +95,29 @@ paths:
         httpMethod: POST
         type: aws_proxy
 
+  /character/all:
+    get:
+      summary: "get list of all character"
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CharacterList"
+      security:
+        - sigv4: [ ]
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllCharacterFunction.Arn}/invocations"
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+
   /character:
     get:
       summary: "Find character by name"

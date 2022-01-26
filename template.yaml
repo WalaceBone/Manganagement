@@ -35,7 +35,7 @@ Resources:
   #               - !Ref BucketFrontend
   #               - /*
 
-  OriginAccessIdentity:
+  FrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties: 
       CloudFrontOriginAccessIdentityConfig: 
@@ -50,7 +50,7 @@ Resources:
         - DomainName: tp-frontend-live.s3.eu-west-3.amazonaws.com
           Id: S3Source
           S3OriginConfig:
-            OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${OriginAccessIdentity}"
+            OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${FrontOriginAccessIdentity}"
         DefaultRootObject: index.html
         DefaultCacheBehavior:
           ForwardedValues:
@@ -105,6 +105,32 @@ Resources:
           Properties:
             RestApiId: !Ref DefaultApi
             Path: /character
+            Method: GET
+      # Variables d'environnement
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref CharTable
+
+  GetAllCharacterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      # Chemin du handler de la lambda
+      CodeUri: src/character/all
+      Handler: character
+      # Runtime utilisé pour l'exécution de la lambda
+      Runtime: go1.x
+      # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+      # Droits IAM affectés à la l'exécution de la lambda
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CharTable
+        - CloudWatchPutMetricPolicy: { }
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DefaultApi
+            Path: /character/all
             Method: GET
       # Variables d'environnement
       Environment:
